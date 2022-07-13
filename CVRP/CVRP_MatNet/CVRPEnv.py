@@ -30,6 +30,8 @@ class Step_State:
     # shape: (batch, pomo, node_cnt+1)
     finished: torch.Tensor = None
     # shape: (batch, pomo)
+    dummy_mask = None
+    # shape: (batch, pomo, node_cnt+1)
 
 
 class CVRPEnv:
@@ -145,6 +147,7 @@ class CVRPEnv:
         self.step_state.current_node = self.current_node
         self.step_state.ninf_mask = self.ninf_mask
         self.step_state.finished = self.finished
+        self.step_state.dummy_mask = self.dummy_mask
 
         reward = None
         done = False

@@ -50,6 +50,7 @@ class CVRPModel(nn.Module):
 
         elif state.selected_count == 1:  # Second Move, POMO
             selected = torch.arange(start=1, end=pomo_size+1)[None, :].expand(batch_size, pomo_size)
+            selected = torch.where(state.dummy_mask[:, :, -1] == float('inf'), 0, selected)
             prob = torch.ones(size=(batch_size, pomo_size))
 
         else:
