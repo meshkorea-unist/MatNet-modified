@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 import torch
 
-from CVRProblemDef import get_random_problems, augment_xy_data_by_8_fold
+from CVRProblemDef import load_predefined_problems, augment_xy_data_by_8_fold
 
 
 @dataclass
@@ -75,16 +75,17 @@ class CVRPEnv:
         # shape: (batch, pomo, node_cnt+1)
         self.finished = None
         # shape: (batch, pomo)
+        self.dummy_mask = None
+        # shape: (batch, pomo, node_cnt+1)
 
         # states to return
         ####################################
         self.reset_state = Reset_State()
         self.step_state = Step_State()
 
-
     def load_problems(self, batch_size, aug_factor=1):
         self.batch_size = batch_size
-        depot_xy, node_xy, duration_matrix, node_demand, real_node_sizes = load_predefined_problems(batch_size, self.node_cnt, self.file_path)
+        depot_xy, node_xy, duration_matrix, node_demand, dummy_mask = load_predefined_problems(batch_size, self.node_cnt, self.file_path)
 
         if aug_factor > 1:
             if aug_factor == 8:
@@ -102,8 +103,8 @@ class CVRPEnv:
         # shape: (batch, 1)
         self.depot_node_demand = torch.cat((depot_demand, node_demand), dim=1)
         # shape: (batch, node_cnt+1)
-        self.real_node_sizes = real_node_sizes
-
+        self.dummy_mask = dummy_mask
+        # shape: (batch, pomo, node_cnt+1)
 
         self.BATCH_IDX = torch.arange(self.batch_size)[:, None].expand(self.batch_size, self.pomo_size)
         self.POMO_IDX = torch.arange(self.pomo_size)[None, :].expand(self.batch_size, self.pomo_size)
@@ -127,9 +128,9 @@ class CVRPEnv:
         # shape: (batch, pomo)
         self.load = torch.ones(size=(self.batch_size, self.pomo_size))
         # shape: (batch, pomo)
-        self.visited_ninf_flag = torch.zeros(size=(self.batch_size, self.pomo_size, self.node_cnt+1))
+        self.visited_ninf_flag = self.dummy_mask.copy()
         # shape: (batch, pomo, node_cnt+1)
-        self.ninf_mask = torch.zeros(size=(self.batch_size, self.pomo_size, self.node_cnt+1))
+        self.ninf_mask = self.dummy_mask.copy()
         # shape: (batch, pomo, node_cnt+1)
         self.finished = torch.zeros(size=(self.batch_size, self.pomo_size), dtype=torch.bool)
         # shape: (batch, pomo)

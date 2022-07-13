@@ -27,39 +27,41 @@ THE SOFTWARE.
 
 import torch
 import orjson
+import os
+
 
 def load_predefined_problems(batch_size, node_cnt, file_path):
 
     ################################
     # "json" type
     ################################
-    
-    depot_xy = torch.zeros((batch, 1, 2))
-    node_xy = torch.Tensor((batch, node_cnt, 2))
-    duration_matrix = torch.Tensor(data['duration_matrix'])
-    
+    depot_xy = torch.zeros((batch_size, 1, 2))
+    # shape: (batch, 1, 2)
+    node_xy = torch.zeros((batch_size, node_cnt, 2))
+    # shape: (batch, node_cnt, 2)
+    duration_matrix = torch.full((batch_size, node_cnt+1, node_cnt+1), float('inf'))
+    # shape: (batch, node_cnt+1, node_cnt+1)
+    dummy_mask = torch.zeros((batch_size, node_cnt, node_cnt+1))
+    # shape: (batch, node_cnt, node_cnt+1)
+
     cnt = 0
     real_node_sizes = []
-    #for file in os.walk(file_path):
+    for file in os.walk(file_path):
         # TODO
         with open(file) as f:
             data = orjson.load(f)
         raw_node_xy = data['node_xy']
         if len(raw_node_xy) > node_cnt:
             continue
-        else:
-            real_node_sizes.append(len(raw_node_xy))
         
-        depot_xy = torch.Tensor(data['depot_xy'])
-        # shape: (batch, 1, 2)
+        depot_xy[cnt, :, :] = torch.Tensor(data['depot_xy'])
 
-        node_xy = torch.zeros((batch, node_cnt, 2))
-        node_xy[:len(raw_node_xy)] = raw_node_xy
-        # shape: (batch, node_cnt, 2)
+        node_xy[cnt, :len(raw_node_xy)] = raw_node_xy
 
-        duration_matrix = torch.full((batch, node_cnt+1, node_cnt+1), float('inf'))
-        duration_matrix[:len(raw_node_xy)+1,:len(raw_node_xy)+1] = torch.Tensor(data['duration_matrix'])
-        # shape: (batch, node_cnt+1, node_cnt+1)
+        dummy_mask[cnt, len(raw_node_xy):, len(raw_node_xy)+1:] = float('inf')
+
+        duration_matrix[cnt, :len(raw_node_xy)+1, :len(raw_node_xy)+1] = torch.Tensor(data['duration_matrix'])
+
         cnt += 1
         if cnt == batch_size:
             break
@@ -76,13 +78,13 @@ def load_predefined_problems(batch_size, node_cnt, file_path):
     '''
     demand_scaler = 5000
 
-    node_demand = torch.randint(1, 10, size=(batch_size, problem_size)) / float(demand_scaler)
+    node_demand = torch.randint(1, 10, size=(batch_size, node_cnt)) / float(demand_scaler)
     # shape: (batch, problem)
     
     real_node_sizes = torch.Tensor(real_node_sizes, dtype=torch.int)
     # shape: (batch)
 
-    return depot_xy, node_xy, duration_matrix, node_demand, real_node_sizes
+    return depot_xy, node_xy, duration_matrix, node_demand, dummy_mask
 
 def augment_xy_data_by_8_fold(xy_data):
     # xy_data.shape: (batch, N, 2)
