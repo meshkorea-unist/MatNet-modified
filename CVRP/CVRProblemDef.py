@@ -26,7 +26,7 @@ THE SOFTWARE.
 """
 
 import torch
-import orjson
+import json
 import os
 
 
@@ -45,22 +45,20 @@ def load_predefined_problems(batch_size, node_cnt, file_path):
     # shape: (batch, node_cnt, node_cnt+1)
 
     cnt = 0
-    real_node_sizes = []
-    for file in os.walk(file_path):
-        # TODO
-        with open(file) as f:
-            data = orjson.load(f)
+    for name in os.listdir(file_path):
+        with open(os.path.join(file_path, name)) as f:
+            data = json.load(f)
         raw_node_xy = data['node_xy']
         if len(raw_node_xy) > node_cnt:
             continue
-        
+
         depot_xy[cnt, :, :] = torch.Tensor(data['depot_xy'])
 
-        node_xy[cnt, :len(raw_node_xy)] = raw_node_xy
+        node_xy[cnt, :len(raw_node_xy)] = torch.Tensor(raw_node_xy)
 
         dummy_mask[cnt, len(raw_node_xy):, len(raw_node_xy)+1:] = float('inf')
 
-        duration_matrix[cnt, :len(raw_node_xy)+1, :len(raw_node_xy)+1] = torch.Tensor(data['duration_matrix'])
+        duration_matrix[cnt, :len(raw_node_xy)+1, :len(raw_node_xy)+1] = torch.Tensor(data['durations'])
 
         cnt += 1
         if cnt == batch_size:
@@ -80,9 +78,6 @@ def load_predefined_problems(batch_size, node_cnt, file_path):
 
     node_demand = torch.randint(1, 10, size=(batch_size, node_cnt)) / float(demand_scaler)
     # shape: (batch, problem)
-    
-    real_node_sizes = torch.Tensor(real_node_sizes, dtype=torch.int)
-    # shape: (batch)
 
     return depot_xy, node_xy, duration_matrix, node_demand, dummy_mask
 
