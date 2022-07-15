@@ -23,7 +23,7 @@ sys.path.insert(0, "../..")  # for utils
 import logging
 from utils.utils import create_logger, copy_all_src
 
-from CVRPTester import CVRPTester as Tester
+from CVRPTrainer import CVRPTrainer as Trainer
 
 
 ##########################################################################################
@@ -32,7 +32,7 @@ from CVRPTester import CVRPTester as Tester
 env_params = {
     'node_cnt': 100,
     'pomo_size': 100,
-    'file_path': './',
+    'file_path': '/home/ec2-user/workspace/shkang/sample_data_matnet_input/samples',
 }
 
 model_params = {
@@ -40,7 +40,6 @@ model_params = {
     'sqrt_embedding_dim': 128**(1/2),
     'encoder_layer_num': 6,
     'qkv_dim': 16,
-    'sqrt_qkv_dim': 16**(1/2),
     'head_num': 8,
     'logit_clipping': 10,
     'ff_hidden_dim': 512,
@@ -50,27 +49,47 @@ model_params = {
     'eval_type': 'argmax',
 }
 
+optimizer_params = {
+    'optimizer': {
+        'lr': 1e-4,
+        'weight_decay': 1e-6
+    },
+    'scheduler': {
+        'milestones': [8001, 8051],
+        'gamma': 0.1
+    }
+}
 
-tester_params = {
+trainer_params = {
     'use_cuda': USE_CUDA,
     'cuda_device_num': CUDA_DEVICE_NUM,
-    'model_load': {
-        'path': './result/saved_CVRP100_model',  # directory path of pre-trained model and log files saved.
-        'epoch': 30500,  # epoch version of pre-trained model to laod.
+    'epochs': 8100,
+    'train_episodes': 10 * 1000,
+    'train_batch_size': 64,
+    'prev_model_path': None,
+    'logging': {
+        'model_save_interval': 500,
+        'img_save_interval': 500,
+        'log_image_params_1': {
+            'json_foldername': 'log_image_style',
+            'filename': 'style_cvrp_100.json'
+        },
+        'log_image_params_2': {
+            'json_foldername': 'log_image_style',
+            'filename': 'style_loss_1.json'
+        },
     },
-    'test_episodes': 10*1000,
-    'test_batch_size': 1000,
-    'augmentation_enable': True,
-    'aug_factor': 8,
-    'aug_batch_size': 400,
-}
-if tester_params['augmentation_enable']:
-    tester_params['test_batch_size'] = tester_params['aug_batch_size']
+    'model_load': {
+        'enable': False,  # enable loading pre-trained model
+        # 'path': './result/saved_CVRP20_model',  # directory path of pre-trained model and log files saved.
+        # 'epoch': 2000,  # epoch version of pre-trained model to load.
 
+    }
+}
 
 logger_params = {
     'log_file': {
-        'desc': 'test_cvrp_max100',
+        'desc': 'train_cvrp_max100',
         'filename': 'log.txt'
     }
 }
@@ -86,18 +105,23 @@ def main():
     create_logger(**logger_params)
     _print_config()
 
-    tester = Tester(env_params=env_params,
+    trainer = Trainer(env_params=env_params,
                       model_params=model_params,
-                      tester_params=tester_params)
+                      optimizer_params=optimizer_params,
+                      trainer_params=trainer_params)
 
-    copy_all_src(tester.result_folder)
+    copy_all_src(trainer.result_folder)
 
-    tester.run()
+    trainer.run()
 
 
 def _set_debug_mode():
-    global tester_params
-    tester_params['test_episodes'] = 10
+    global trainer_params
+    trainer_params['epochs'] = 2
+    trainer_params['train_episodes'] = 4
+    trainer_params['train_batch_size'] = 2
+    trainer_params['validate_episodes'] = 4
+    trainer_params['validate_batch_size'] = 2
 
 
 def _print_config():

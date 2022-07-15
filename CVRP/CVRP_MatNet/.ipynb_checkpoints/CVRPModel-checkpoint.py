@@ -2,6 +2,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+from CVRPModel_LIB import AddAndInstanceNormalization, FeedForward, MixedScore_MultiHeadAttention
+
 
 class CVRPModel(nn.Module):
 
@@ -25,7 +27,7 @@ class CVRPModel(nn.Module):
         # shape: (batch, node_cnt, 3)
         duration_matrix = reset_state.duration_matrix
         # shape: (batch, node+1, node+1)
-        self.encoded_nodes = self.encoder(depot_xy, node_xy_demand)
+        self.encoded_nodes = self.encoder(depot_xy, node_xy_demand, duration_matrix)
         # shape: (batch, node_cnt+1, embedding)
         self.decoder.set_kv(self.encoded_nodes)
 
@@ -111,26 +113,46 @@ class CVRP_Encoder(nn.Module):
         self.embedding_node_col = nn.Linear(3, embedding_dim)
         self.layers = nn.ModuleList([EncoderLayer(**model_params) for _ in range(encoder_layer_num)])
 
-    def forward(self, depot_xy, node_xy_demand):
+    def forward(self, depot_xy, node_xy_demand, cost_mat):
         # depot_xy.shape: (batch, 1, 2)
         # node_xy_demand.shape: (batch, node_cnt, 3)
 
         embedded_depot = self.embedding_depot(depot_xy)
         # shape: (batch, 1, embedding)
-        embedded_node = self.embedding_node(node_xy_demand)
+        embedded_node_row = self.embedding_node_row(node_xy_demand)
+        # shape: (batch, node_cnt, embedding)
+        embedded_node_col = self.embedding_node_col(node_xy_demand)
         # shape: (batch, node_cnt, embedding)
 
-        out = torch.cat((embedded_depot, embedded_node), dim=1)
+        row_emb = torch.cat((embedded_depot, embedded_node_row), dim=1)
+        # shape: (batch, node_cnt+1, embedding)
+        col_emb = torch.cat((embedded_depot, embedded_node_col), dim=1)
         # shape: (batch, node_cnt+1, embedding)
 
         for layer in self.layers:
-            out = layer(out)
+            row_emb, col_emb = layer(row_emb, col_emb, cost_mat)
 
         return out
         # shape: (batch, node_cnt+1, embedding)
 
 
 class EncoderLayer(nn.Module):
+    def __init__(self, **model_params):
+        super().__init__()
+        self.row_encoding_block = EncodingBlock(**model_params)
+        self.col_encoding_block = EncodingBlock(**model_params)
+
+    def forward(self, row_emb, col_emb, cost_mat):
+        # row_emb.shape: (batch, row_cnt, embedding)
+        # col_emb.shape: (batch, col_cnt, embedding)
+        # cost_mat.shape: (batch, row_cnt, col_cnt)
+        row_emb_out = self.row_encoding_block(row_emb, col_emb, cost_mat)
+        col_emb_out = self.col_encoding_block(col_emb, row_emb, cost_mat.transpose(1, 2))
+
+        return row_emb_out, col_emb_out
+
+
+class EncodingBlock(nn.Module):
     def __init__(self, **model_params):
         super().__init__()
         self.model_params = model_params
@@ -141,33 +163,38 @@ class EncoderLayer(nn.Module):
         self.Wq = nn.Linear(embedding_dim, head_num * qkv_dim, bias=False)
         self.Wk = nn.Linear(embedding_dim, head_num * qkv_dim, bias=False)
         self.Wv = nn.Linear(embedding_dim, head_num * qkv_dim, bias=False)
+        self.mixed_score_MHA = MixedScore_MultiHeadAttention(**model_params)
         self.multi_head_combine = nn.Linear(head_num * qkv_dim, embedding_dim)
 
         self.add_n_normalization_1 = AddAndInstanceNormalization(**model_params)
         self.feed_forward = FeedForward(**model_params)
         self.add_n_normalization_2 = AddAndInstanceNormalization(**model_params)
 
-    def forward(self, input1):
-        # input1.shape: (batch, node_cnt+1, embedding)
+    def forward(self, row_emb, col_emb, cost_mat):
+        # NOTE: row and col can be exchanged, if cost_mat.transpose(1,2) is used
+        # input1.shape: (batch, row_cnt, embedding)
+        # input2.shape: (batch, col_cnt, embedding)
+        # cost_mat.shape: (batch, row_cnt, col_cnt)
         head_num = self.model_params['head_num']
 
-        q = reshape_by_heads(self.Wq(input1), head_num=head_num)
-        k = reshape_by_heads(self.Wk(input1), head_num=head_num)
-        v = reshape_by_heads(self.Wv(input1), head_num=head_num)
-        # qkv shape: (batch, head_num, node_cnt, qkv_dim)
+        q = reshape_by_heads(self.Wq(row_emb), head_num=head_num)
+        # q shape: (batch, head_num, row_cnt, qkv_dim)
+        k = reshape_by_heads(self.Wk(col_emb), head_num=head_num)
+        v = reshape_by_heads(self.Wv(col_emb), head_num=head_num)
+        # kv shape: (batch, head_num, col_cnt, qkv_dim)
 
-        out_concat = multi_head_attention(q, k, v)
-        # shape: (batch, node_cnt, head_num*qkv_dim)
+        out_concat = self.mixed_score_MHA(q, k, v, cost_mat)
+        # shape: (batch, row_cnt, head_num*qkv_dim)
 
         multi_head_out = self.multi_head_combine(out_concat)
-        # shape: (batch, node_cnt, embedding)
+        # shape: (batch, row_cnt, embedding)
 
-        out1 = self.add_n_normalization_1(input1, multi_head_out)
+        out1 = self.add_n_normalization_1(row_emb, multi_head_out)
         out2 = self.feed_forward(out1)
         out3 = self.add_n_normalization_2(out1, out2)
 
         return out3
-        # shape: (batch, node_cnt, embedding)
+        # shape: (batch, row_cnt, embedding)
 
 
 ########################################

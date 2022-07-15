@@ -27,7 +27,7 @@ class CVRPModel(nn.Module):
         # shape: (batch, node_cnt, 3)
         duration_matrix = reset_state.duration_matrix
         # shape: (batch, node+1, node+1)
-        self.encoded_nodes = self.encoder(depot_xy, node_xy_demand, duration_matrix)
+        self.encoded_nodes = self.encoder(depot_xy, node_xy_demand)
         # shape: (batch, node_cnt+1, embedding)
         self.decoder.set_kv(self.encoded_nodes)
 
