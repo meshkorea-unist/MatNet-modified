@@ -39,7 +39,7 @@ def load_predefined_problems(batch_size, node_cnt, file_path):
     # shape: (batch, 1, 2)
     node_xy = torch.zeros((batch_size, node_cnt, 2))
     # shape: (batch, node_cnt, 2)
-    duration_matrix = torch.full((batch_size, node_cnt+1, node_cnt+1), 1e9)
+    duration_matrix = torch.full((batch_size, node_cnt+1, node_cnt+1), 1e10)
     # shape: (batch, node_cnt+1, node_cnt+1)
     dummy_mask = torch.zeros((batch_size, node_cnt, node_cnt+1))
     # shape: (batch, node_cnt, node_cnt+1)
@@ -56,7 +56,7 @@ def load_predefined_problems(batch_size, node_cnt, file_path):
 
         node_xy[cnt, :len(raw_node_xy)] = torch.Tensor(raw_node_xy)
 
-        dummy_mask[cnt, len(raw_node_xy):, len(raw_node_xy)+1:] = float('inf')
+        dummy_mask[cnt, len(raw_node_xy):, len(raw_node_xy)+1:] = -float('inf')
 
         duration_matrix[cnt, :len(raw_node_xy)+1, :len(raw_node_xy)+1] = torch.Tensor(data['durations'])
 

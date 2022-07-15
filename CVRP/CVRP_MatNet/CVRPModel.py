@@ -61,7 +61,6 @@ class CVRPModel(nn.Module):
             # shape: (batch, pomo, embedding)
             probs = self.decoder(encoded_last_node, state.load, ninf_mask=state.ninf_mask)
             # shape: (batch, pomo, node_cnt+1)
-            print(probs)
             if self.training or self.model_params['eval_type'] == 'softmax':
                 while True:  # to fix pytorch.multinomial bug on selecting 0 probability elements
                     with torch.no_grad():

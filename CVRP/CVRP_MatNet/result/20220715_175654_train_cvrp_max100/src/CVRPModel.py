@@ -61,7 +61,6 @@ class CVRPModel(nn.Module):
             # shape: (batch, pomo, embedding)
             probs = self.decoder(encoded_last_node, state.load, ninf_mask=state.ninf_mask)
             # shape: (batch, pomo, node_cnt+1)
-
             if self.training or self.model_params['eval_type'] == 'softmax':
                 while True:  # to fix pytorch.multinomial bug on selecting 0 probability elements
                     with torch.no_grad():
@@ -333,6 +332,7 @@ def multi_head_attention(q, k, v, rank2_ninf_mask=None, rank3_ninf_mask=None):
     if rank3_ninf_mask is not None:
         score_scaled = score_scaled + rank3_ninf_mask[:, None, :, :].expand(batch_s, head_num, n, input_s)
 
+    print(score_scaled)
     weights = nn.Softmax(dim=3)(score_scaled)
     # shape: (batch, head_num, n, node_cnt)
 
