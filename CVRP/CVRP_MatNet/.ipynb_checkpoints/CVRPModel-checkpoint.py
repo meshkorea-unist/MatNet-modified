@@ -13,7 +13,8 @@ class CVRPModel(nn.Module):
 
         self.encoder = CVRP_Encoder(**model_params)
         self.decoder = CVRP_Decoder(**model_params)
-        self.encoded_nodes = None
+        self.encoded_row = None
+        self.encoded_col = None
         # shape: (batch, node_cnt+1, EMBEDDING_DIM)
 
     def pre_forward(self, reset_state):
@@ -27,9 +28,9 @@ class CVRPModel(nn.Module):
         # shape: (batch, node_cnt, 3)
         duration_matrix = reset_state.duration_matrix
         # shape: (batch, node+1, node+1)
-        self.encoded_nodes = self.encoder(depot_xy, node_xy_demand, duration_matrix)
+        self.encoded_row, self.encoded_col = self.encoder(depot_xy, node_xy_demand, duration_matrix)
         # shape: (batch, node_cnt+1, embedding)
-        self.decoder.set_kv(self.encoded_nodes)
+        self.decoder.set_kv(self.encoded_col)
 
     def forward(self, state):
         batch_size = state.BATCH_IDX.size(0)
@@ -56,11 +57,11 @@ class CVRPModel(nn.Module):
             prob = torch.ones(size=(batch_size, pomo_size))
 
         else:
-            encoded_last_node = _get_encoding(self.encoded_nodes, state.current_node)
+            encoded_last_node = _get_encoding(self.encoded_row, state.current_node)
             # shape: (batch, pomo, embedding)
             probs = self.decoder(encoded_last_node, state.load, ninf_mask=state.ninf_mask)
             # shape: (batch, pomo, node_cnt+1)
-
+            print(probs)
             if self.training or self.model_params['eval_type'] == 'softmax':
                 while True:  # to fix pytorch.multinomial bug on selecting 0 probability elements
                     with torch.no_grad():
@@ -123,7 +124,7 @@ class CVRP_Encoder(nn.Module):
         # shape: (batch, node_cnt, embedding)
         embedded_node_col = self.embedding_node_col(node_xy_demand)
         # shape: (batch, node_cnt, embedding)
-
+        
         row_emb = torch.cat((embedded_depot, embedded_node_row), dim=1)
         # shape: (batch, node_cnt+1, embedding)
         col_emb = torch.cat((embedded_depot, embedded_node_col), dim=1)
@@ -132,7 +133,7 @@ class CVRP_Encoder(nn.Module):
         for layer in self.layers:
             row_emb, col_emb = layer(row_emb, col_emb, cost_mat)
 
-        return out
+        return row_emb, col_emb
         # shape: (batch, node_cnt+1, embedding)
 
 
@@ -143,9 +144,9 @@ class EncoderLayer(nn.Module):
         self.col_encoding_block = EncodingBlock(**model_params)
 
     def forward(self, row_emb, col_emb, cost_mat):
-        # row_emb.shape: (batch, row_cnt, embedding)
-        # col_emb.shape: (batch, col_cnt, embedding)
-        # cost_mat.shape: (batch, row_cnt, col_cnt)
+        # row_emb.shape: (batch, row_cnt+1, embedding)
+        # col_emb.shape: (batch, col_cnt+1, embedding)
+        # cost_mat.shape: (batch, row_cnt+1, col_cnt+1)
         row_emb_out = self.row_encoding_block(row_emb, col_emb, cost_mat)
         col_emb_out = self.col_encoding_block(col_emb, row_emb, cost_mat.transpose(1, 2))
 
@@ -172,20 +173,19 @@ class EncodingBlock(nn.Module):
 
     def forward(self, row_emb, col_emb, cost_mat):
         # NOTE: row and col can be exchanged, if cost_mat.transpose(1,2) is used
-        # input1.shape: (batch, row_cnt, embedding)
-        # input2.shape: (batch, col_cnt, embedding)
-        # cost_mat.shape: (batch, row_cnt, col_cnt)
+        # input1.shape: (batch, row_cnt+1, embedding)
+        # input2.shape: (batch, col_cnt+1, embedding)
+        # cost_mat.shape: (batch, row_cnt+1, col_cnt+1)
         head_num = self.model_params['head_num']
 
         q = reshape_by_heads(self.Wq(row_emb), head_num=head_num)
-        # q shape: (batch, head_num, row_cnt, qkv_dim)
+        # q shape: (batch, head_num, row_cnt+1, qkv_dim)
         k = reshape_by_heads(self.Wk(col_emb), head_num=head_num)
         v = reshape_by_heads(self.Wv(col_emb), head_num=head_num)
-        # kv shape: (batch, head_num, col_cnt, qkv_dim)
+        # kv shape: (batch, head_num, col_cnt+1, qkv_dim)
 
         out_concat = self.mixed_score_MHA(q, k, v, cost_mat)
         # shape: (batch, row_cnt, head_num*qkv_dim)
-
         multi_head_out = self.multi_head_combine(out_concat)
         # shape: (batch, row_cnt, embedding)
 

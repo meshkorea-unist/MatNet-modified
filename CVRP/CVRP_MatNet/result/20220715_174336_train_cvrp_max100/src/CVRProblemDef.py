@@ -39,7 +39,7 @@ def load_predefined_problems(batch_size, node_cnt, file_path):
     # shape: (batch, 1, 2)
     node_xy = torch.zeros((batch_size, node_cnt, 2))
     # shape: (batch, node_cnt, 2)
-    duration_matrix = torch.full((batch_size, node_cnt+1, node_cnt+1), float('inf'))
+    duration_matrix = torch.full((batch_size, node_cnt+1, node_cnt+1), 1e9)
     # shape: (batch, node_cnt+1, node_cnt+1)
     dummy_mask = torch.zeros((batch_size, node_cnt, node_cnt+1))
     # shape: (batch, node_cnt, node_cnt+1)

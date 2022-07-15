@@ -146,4 +146,4 @@ class MixedScore_MultiHeadAttention(nn.Module):
         out_concat = out_transposed.reshape(batch_size, row_cnt, head_num * qkv_dim)
         # shape: (batch, row_cnt, head_num*qkv_dim)
 
-        return 
+        return out_concat

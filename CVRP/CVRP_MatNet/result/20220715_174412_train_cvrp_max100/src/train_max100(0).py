@@ -40,6 +40,7 @@ model_params = {
     'sqrt_embedding_dim': 128**(1/2),
     'encoder_layer_num': 6,
     'qkv_dim': 16,
+    'sqrt_qkv_dim': 16**(1/2),
     'head_num': 8,
     'logit_clipping': 10,
     'ff_hidden_dim': 512,
