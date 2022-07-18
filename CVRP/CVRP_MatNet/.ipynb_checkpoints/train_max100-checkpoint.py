@@ -30,8 +30,8 @@ from CVRPTrainer import CVRPTrainer as Trainer
 # parameters
 
 env_params = {
-    'node_cnt': 100,
-    'pomo_size': 100,
+    'node_cnt': 60,
+    'pomo_size': 60,
     'file_path': '/home/ec2-user/workspace/shkang/sample_data_matnet_input/samples',
 }
 
@@ -66,7 +66,7 @@ trainer_params = {
     'cuda_device_num': CUDA_DEVICE_NUM,
     'epochs': 8100,
     'train_episodes': 10 * 1000,
-    'train_batch_size': 64,
+    'train_batch_size': 16,
     'prev_model_path': None,
     'logging': {
         'model_save_interval': 500,

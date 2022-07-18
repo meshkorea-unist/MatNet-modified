@@ -116,6 +116,8 @@ class CVRPEnv:
         self.reset_state.node_xy = node_xy
         self.reset_state.node_demand = node_demand
         self.reset_state.duration_matrix = duration_matrix
+        
+        self.duration_matrix = duration_matrix
 
         self.step_state.BATCH_IDX = self.BATCH_IDX
         self.step_state.POMO_IDX = self.POMO_IDX
@@ -213,11 +215,11 @@ class CVRPEnv:
         return self.step_state, reward, done
 
     def _get_total_duration(self):
-
         node_from = self.selected_node_list
-        # shape: (batch, pomo, node)
+        # shape: (batch, pomo, selected_list_length
+        print(node_from)
         node_to = self.selected_node_list.roll(dims=2, shifts=-1)
-        # shape: (batch, pomo, node)
+        # shape: (batch, pomo, selected_list_length)
         batch_index = self.BATCH_IDX[:, :, None].expand(self.batch_size, self.pomo_size, self.node_cnt)
         # shape: (batch, pomo, node)
 
