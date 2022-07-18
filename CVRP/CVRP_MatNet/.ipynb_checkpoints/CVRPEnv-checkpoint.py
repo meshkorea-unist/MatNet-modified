@@ -217,15 +217,13 @@ class CVRPEnv:
     def _get_total_duration(self):
         node_from = self.selected_node_list
         # shape: (batch, pomo, selected_list_length
-        print(node_from)
         node_to = self.selected_node_list.roll(dims=2, shifts=-1)
         # shape: (batch, pomo, selected_list_length)
-        batch_index = self.BATCH_IDX[:, :, None].expand(self.batch_size, self.pomo_size, self.node_cnt)
-        # shape: (batch, pomo, node)
+        batch_index = self.BATCH_IDX[:, :, None].expand(self.batch_size, self.pomo_size, node_to.shape[2])
+        # shape: (batch, pomo, selected_list_length)
 
         selected_cost = self.duration_matrix[batch_index, node_from, node_to]
         # shape: (batch, pomo, node)
         total_distance = selected_cost.sum(2)
         # shape: (batch, pomo)
-
         return total_distance

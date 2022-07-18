@@ -226,4 +226,5 @@ class CVRPEnv:
         # shape: (batch, pomo, node)
         total_distance = selected_cost.sum(2)
         # shape: (batch, pomo)
+        print(total_distance)
         return total_distance
