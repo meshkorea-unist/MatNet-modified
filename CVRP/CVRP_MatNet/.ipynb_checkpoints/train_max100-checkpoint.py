@@ -73,11 +73,11 @@ trainer_params = {
         'img_save_interval': 500,
         'log_image_params_1': {
             'json_foldername': 'log_image_style',
-            'filename': 'style_cvrp_100.json'
+            'filename': 'style.json'
         },
         'log_image_params_2': {
             'json_foldername': 'log_image_style',
-            'filename': 'style_loss_1.json'
+            'filename': 'style_loss.json'
         },
     },
     'model_load': {
