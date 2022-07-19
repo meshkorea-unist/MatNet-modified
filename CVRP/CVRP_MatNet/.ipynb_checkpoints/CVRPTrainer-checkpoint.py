@@ -184,11 +184,12 @@ class CVRPTrainer:
         # size = (batch, pomo)
         loss = -advantage * log_prob  # Minus Sign: To Increase REWARD
         # shape: (batch, pomo)
-        loss_mean = loss.mean()
+
+        loss_mean = loss.sum()/(loss!=0).sum()
 
         # Score
         ###############################################
-        max_pomo_reward, _ = torch.where(reward==0.0,torch.tensor(-1e12),reward).max(dim=1)  # get best results from pomo
+        max_pomo_reward, _ = torch.where(reward==0,-100000,reward).max(dim=1)  # get best results from pomo
         score_mean = -max_pomo_reward.float().mean()  # negative sign to make positive value
 
         # Step & Return

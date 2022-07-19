@@ -28,10 +28,12 @@ THE SOFTWARE.
 import torch
 import json
 import os
+import numpy as np
 
 
 def load_predefined_problems(batch_size, node_cnt, file_path):
-
+    min_coords = torch.Tensor([919557.27446633, 1883094.34362266])
+    max_coords = torch.Tensor([ 986881.66391917, 1976116.0223603 ])
     ################################
     # "json" type
     ################################
@@ -39,26 +41,36 @@ def load_predefined_problems(batch_size, node_cnt, file_path):
     # shape: (batch, 1, 2)
     node_xy = torch.zeros((batch_size, node_cnt, 2))
     # shape: (batch, node_cnt, 2)
-    duration_matrix = torch.full((batch_size, node_cnt+1, node_cnt+1), float('inf'))
+    duration_matrix = torch.full((batch_size, node_cnt+1, node_cnt+1), 0)
     # shape: (batch, node_cnt+1, node_cnt+1)
     dummy_mask = torch.zeros((batch_size, node_cnt, node_cnt+1))
     # shape: (batch, node_cnt, node_cnt+1)
 
     cnt = 0
-    for name in os.listdir(file_path):
-        with open(os.path.join(file_path, name)) as f:
-            data = json.load(f)
+    for name in np.random.permutation(list(os.listdir(file_path))):
+        try:
+            with open(os.path.join(file_path, name)) as f:
+                data = json.load(f)
+        except Exception as e:
+            print(e)
+            continue
         raw_node_xy = data['node_xy']
         if len(raw_node_xy) > node_cnt:
             continue
 
-        depot_xy[cnt, :, :] = torch.Tensor(data['depot_xy'])
+        depot_xy[cnt, :, :] = (max_coords - torch.Tensor(data['depot_xy']))/(max_coords-min_coords)
 
-        node_xy[cnt, :len(raw_node_xy)] = torch.Tensor(raw_node_xy)
+        node_xy[cnt, :len(raw_node_xy)] = (max_coords - torch.Tensor(raw_node_xy))/(max_coords-min_coords)
 
-        dummy_mask[cnt, len(raw_node_xy):, len(raw_node_xy)+1:] = float('inf')
+        
+        dummy_mask[cnt, len(raw_node_xy):, 1:] = float('-inf')
+        dummy_mask[cnt, :, len(raw_node_xy)+1:] = float('-inf')
 
         duration_matrix[cnt, :len(raw_node_xy)+1, :len(raw_node_xy)+1] = torch.Tensor(data['durations'])
+        #print(duration_matrix[duration_matrix>1e4])
+        #if len(duration_matrix[duration_matrix>1e4]) != 0:
+        #    print(name)
+        #    raise
 
         cnt += 1
         if cnt == batch_size:

@@ -28,7 +28,6 @@ THE SOFTWARE.
 import torch
 import json
 import os
-import numpy as np
 
 
 def load_predefined_problems(batch_size, node_cnt, file_path):
@@ -41,19 +40,15 @@ def load_predefined_problems(batch_size, node_cnt, file_path):
     # shape: (batch, 1, 2)
     node_xy = torch.zeros((batch_size, node_cnt, 2))
     # shape: (batch, node_cnt, 2)
-    duration_matrix = torch.full((batch_size, node_cnt+1, node_cnt+1), 0)
+    duration_matrix = torch.full((batch_size, node_cnt+1, node_cnt+1), 1e12)
     # shape: (batch, node_cnt+1, node_cnt+1)
     dummy_mask = torch.zeros((batch_size, node_cnt, node_cnt+1))
     # shape: (batch, node_cnt, node_cnt+1)
 
     cnt = 0
-    for name in np.random.permutation(list(os.listdir(file_path))):
-        try:
-            with open(os.path.join(file_path, name)) as f:
-                data = json.load(f)
-        except Exception as e:
-            print(e)
-            continue
+    for name in os.listdir(file_path):
+        with open(os.path.join(file_path, name)) as f:
+            data = json.load(f)
         raw_node_xy = data['node_xy']
         if len(raw_node_xy) > node_cnt:
             continue
@@ -67,10 +62,6 @@ def load_predefined_problems(batch_size, node_cnt, file_path):
         dummy_mask[cnt, :, len(raw_node_xy)+1:] = float('-inf')
 
         duration_matrix[cnt, :len(raw_node_xy)+1, :len(raw_node_xy)+1] = torch.Tensor(data['durations'])
-        #print(duration_matrix[duration_matrix>1e4])
-        #if len(duration_matrix[duration_matrix>1e4]) != 0:
-        #    print(name)
-        #    raise
 
         cnt += 1
         if cnt == batch_size:

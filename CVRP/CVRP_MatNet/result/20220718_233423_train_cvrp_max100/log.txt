@@ -1,0 +1,29 @@
+[2022-07-18 14:34:23] train_max100.py(130) : DEBUG_MODE: False
+[2022-07-18 14:34:23] train_max100.py(131) : USE_CUDA: True, CUDA_DEVICE_NUM: 0
+[2022-07-18 14:34:23] train_max100.py(132) : env_params{'node_cnt': 60, 'pomo_size': 60, 'file_path': '/home/ec2-user/workspace/shkang/sample_data_matnet_input/samples'}
+[2022-07-18 14:34:23] train_max100.py(132) : model_params{'embedding_dim': 128, 'sqrt_embedding_dim': 11.313708498984761, 'encoder_layer_num': 6, 'qkv_dim': 16, 'sqrt_qkv_dim': 4.0, 'head_num': 8, 'logit_clipping': 10, 'ff_hidden_dim': 512, 'ms_hidden_dim': 16, 'ms_layer1_init': 0.7071067811865476, 'ms_layer2_init': 0.25, 'eval_type': 'argmax'}
+[2022-07-18 14:34:23] train_max100.py(132) : optimizer_params{'optimizer': {'lr': 0.0001, 'weight_decay': 1e-06}, 'scheduler': {'milestones': [8001, 8051], 'gamma': 0.1}}
+[2022-07-18 14:34:23] train_max100.py(132) : trainer_params{'use_cuda': True, 'cuda_device_num': 0, 'epochs': 8100, 'train_episodes': 10000, 'train_batch_size': 80, 'prev_model_path': None, 'logging': {'model_save_interval': 500, 'img_save_interval': 500, 'log_image_params_1': {'json_foldername': 'log_image_style', 'filename': 'style.json'}, 'log_image_params_2': {'json_foldername': 'log_image_style', 'filename': 'style_loss.json'}}, 'model_load': {'enable': False}}
+[2022-07-18 14:34:23] train_max100.py(132) : logger_params{'log_file': {'desc': 'train_cvrp_max100', 'filename': 'log.txt', 'filepath': './result/20220718_233423_train_cvrp_max100'}}
+[2022-07-18 14:34:26] CVRPTrainer.py(67) : =================================================================
+[2022-07-18 14:34:27] CVRPTrainer.py(146) : Epoch   1: Train  80/10000(0.8%)  Score: 372893.7500,  Loss: -17211562.0000
+[2022-07-18 14:34:28] CVRPTrainer.py(146) : Epoch   1: Train 160/10000(1.6%)  Score: 329573.4844,  Loss: -15925402.5000
+[2022-07-18 14:34:29] CVRPTrainer.py(146) : Epoch   1: Train 240/10000(2.4%)  Score: 296537.0260,  Loss: -14912715.3333
+[2022-07-18 14:34:30] CVRPTrainer.py(146) : Epoch   1: Train 320/10000(3.2%)  Score: 279900.5703,  Loss: -14263466.5000
+[2022-07-18 14:34:31] CVRPTrainer.py(146) : Epoch   1: Train 400/10000(4.0%)  Score: 269856.9281,  Loss: -13725301.8000
+[2022-07-18 14:34:31] CVRPTrainer.py(146) : Epoch   1: Train 480/10000(4.8%)  Score: 263134.8906,  Loss: -13282261.5000
+[2022-07-18 14:34:32] CVRPTrainer.py(146) : Epoch   1: Train 560/10000(5.6%)  Score: 258331.2790,  Loss: -12916102.7143
+[2022-07-18 14:34:33] CVRPTrainer.py(146) : Epoch   1: Train 640/10000(6.4%)  Score: 254714.2910,  Loss: -12647752.0000
+[2022-07-18 14:34:34] CVRPTrainer.py(146) : Epoch   1: Train 720/10000(7.2%)  Score: 251899.5538,  Loss: -12403183.2222
+[2022-07-18 14:34:35] CVRPTrainer.py(146) : Epoch   1: Train 800/10000(8.0%)  Score: 249640.9688,  Loss: -12242314.2000
+[2022-07-18 14:35:45] CVRPTrainer.py(151) : Epoch   1: Train (100%)  Score: 239235.0411,  Loss: -10026167.8960
+[2022-07-18 14:35:45] CVRPTrainer.py(81) : Epoch   1/8100: Time Est.: Elapsed[1.32m], Remain[177.60h]
+[2022-07-18 14:35:45] CVRPTrainer.py(67) : =================================================================
+[2022-07-18 14:36:51] CVRPTrainer.py(151) : Epoch   2: Train (100%)  Score: 234409.7494,  Loss: -9117344.9800
+[2022-07-18 14:36:51] CVRPTrainer.py(81) : Epoch   2/8100: Time Est.: Elapsed[2.42m], Remain[163.01h]
+[2022-07-18 14:36:51] CVRPTrainer.py(90) : Saving log_image
+[2022-07-18 14:36:51] CVRPTrainer.py(67) : =================================================================
+[2022-07-18 14:37:57] CVRPTrainer.py(151) : Epoch   3: Train (100%)  Score: 228941.3179,  Loss: -6475931.7980
+[2022-07-18 14:37:57] CVRPTrainer.py(81) : Epoch   3/8100: Time Est.: Elapsed[3.51m], Remain[157.82h]
+[2022-07-18 14:37:57] CVRPTrainer.py(90) : Saving log_image
+[2022-07-18 14:37:57] CVRPTrainer.py(67) : =================================================================

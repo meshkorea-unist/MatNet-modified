@@ -66,7 +66,7 @@ trainer_params = {
     'cuda_device_num': CUDA_DEVICE_NUM,
     'epochs': 8100,
     'train_episodes': 10 * 1000,
-    'train_batch_size': 16,
+    'train_batch_size': 80,
     'prev_model_path': None,
     'logging': {
         'model_save_interval': 500,
