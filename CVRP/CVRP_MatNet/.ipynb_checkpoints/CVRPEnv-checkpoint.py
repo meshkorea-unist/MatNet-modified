@@ -96,7 +96,8 @@ class CVRPEnv:
                 depot_xy = augment_xy_data_by_8_fold(depot_xy)
                 node_xy = augment_xy_data_by_8_fold(node_xy)
                 node_demand = node_demand.repeat(8, 1)
-                duration_matrix = duration_matrix.repeat(8, 1)
+                duration_matrix = duration_matrix.repeat(8, 1, 1)
+                dummy_mask = dummy_mask.repeat(8, 1, 1)
             else:
                 raise NotImplementedError
 

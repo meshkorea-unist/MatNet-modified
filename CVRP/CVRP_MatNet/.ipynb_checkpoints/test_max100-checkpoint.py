@@ -30,9 +30,9 @@ from CVRPTester import CVRPTester as Tester
 # parameters
 
 env_params = {
-    'node_cnt': 100,
-    'pomo_size': 100,
-    'file_path': './',
+    'node_cnt': 60,
+    'pomo_size': 60,
+    'file_path': '/home/ec2-user/workspace/shkang/sample_data_matnet_input/samples',
 }
 
 model_params = {
@@ -55,14 +55,14 @@ tester_params = {
     'use_cuda': USE_CUDA,
     'cuda_device_num': CUDA_DEVICE_NUM,
     'model_load': {
-        'path': './result/saved_CVRP100_model',  # directory path of pre-trained model and log files saved.
-        'epoch': 30500,  # epoch version of pre-trained model to laod.
+        'path': '/home/ec2-user/workspace/shkang/MatNet-modified/CVRP/CVRP_MatNet/result/20220719_004615_train_cvrp_max100',  # directory path of pre-trained model and log files saved.
+        'epoch': 1000,  # epoch version of pre-trained model to laod.
     },
     'test_episodes': 10*1000,
-    'test_batch_size': 1000,
+    'test_batch_size': 100,
     'augmentation_enable': True,
     'aug_factor': 8,
-    'aug_batch_size': 400,
+    'aug_batch_size': 100,
 }
 if tester_params['augmentation_enable']:
     tester_params['test_batch_size'] = tester_params['aug_batch_size']
