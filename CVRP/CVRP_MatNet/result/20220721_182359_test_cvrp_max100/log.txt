@@ -1,6 +1,0 @@
-[2022-07-21 09:23:59] test_max100.py(105) : DEBUG_MODE: False
-[2022-07-21 09:23:59] test_max100.py(106) : USE_CUDA: True, CUDA_DEVICE_NUM: 0
-[2022-07-21 09:23:59] test_max100.py(107) : env_params{'node_cnt': 60, 'pomo_size': 60, 'file_path': '/home/ec2-user/workspace/shkang/sample_data_matnet_input/samples'}
-[2022-07-21 09:23:59] test_max100.py(107) : model_params{'embedding_dim': 128, 'sqrt_embedding_dim': 11.313708498984761, 'encoder_layer_num': 6, 'qkv_dim': 16, 'sqrt_qkv_dim': 4.0, 'head_num': 8, 'logit_clipping': 10, 'ff_hidden_dim': 512, 'ms_hidden_dim': 16, 'ms_layer1_init': 0.7071067811865476, 'ms_layer2_init': 0.25, 'eval_type': 'argmax'}
-[2022-07-21 09:23:59] test_max100.py(107) : tester_params{'use_cuda': True, 'cuda_device_num': 0, 'model_load': {'path': '/home/ec2-user/workspace/shkang/MatNet-modified/CVRP/CVRP_MatNet/result/20220719_004615_train_cvrp_max100', 'epoch': 1000}, 'test_episodes': 10000, 'test_batch_size': 400, 'augmentation_enable': True, 'aug_factor': 8, 'aug_batch_size': 400}
-[2022-07-21 09:23:59] test_max100.py(107) : logger_params{'log_file': {'desc': 'test_cvrp_max100', 'filename': 'log.txt', 'filepath': './result/20220721_182359_test_cvrp_max100'}}

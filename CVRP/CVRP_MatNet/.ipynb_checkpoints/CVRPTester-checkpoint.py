@@ -1,4 +1,5 @@
 import torch
+import pickle
 
 import os
 from logging import getLogger
@@ -49,6 +50,7 @@ class CVRPTester:
 
         # utility
         self.time_estimator = TimeEstimator()
+            
 
     def run(self):
         self.time_estimator.reset()
@@ -64,7 +66,11 @@ class CVRPTester:
             batch_size = min(self.tester_params['test_batch_size'], remaining)
 
             score, aug_score = self._test_one_batch(batch_size)
-
+            if self.tester_params.get('save_graph'):
+                with open(self.result_folder+'/intermediate_sol_'+str(episode)+'.pkl','wb') as f:
+                    f.write(pickle.dumps({'problem':self.env.depot_node_xy[:batch_size], 'selected_node':self.env.selected_node_list, 'duration_matrix':self.env.duration_matrix[:batch_size]}))
+            
+            
             score_AM.update(score, batch_size)
             aug_score_AM.update(aug_score, batch_size)
 
@@ -108,6 +114,7 @@ class CVRPTester:
             selected, _ = self.model(state)
             # shape: (batch, pomo)
             state, reward, done = self.env.step(selected)
+            
 
         # Return
         ###############################################
