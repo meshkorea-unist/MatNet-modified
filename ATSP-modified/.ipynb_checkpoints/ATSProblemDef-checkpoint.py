@@ -63,8 +63,8 @@ def load_predefined_problems(batch_size, node_cnt, file_path):
     # shape: (batch, node_cnt, 2)
     duration_matrix = torch.full((batch_size, node_cnt+1, node_cnt+1), 0)
     # shape: (batch, node_cnt+1, node_cnt+1)
-    dummy_mask = torch.zeros((batch_size, node_cnt, node_cnt+1))
-    # shape: (batch, node_cnt, node_cnt+1)
+    dummy_mask = torch.zeros((batch_size, node_cnt+1, node_cnt+1))
+    # shape: (batch, node_cnt+1, node_cnt+1)
 
     cnt = 0
     for name in np.random.permutation(list(os.listdir(file_path))):
@@ -83,7 +83,7 @@ def load_predefined_problems(batch_size, node_cnt, file_path):
         node_xy[cnt, :len(raw_node_xy)] = (max_coords - torch.Tensor(raw_node_xy))/(max_coords-min_coords)
 
         
-        dummy_mask[cnt, len(raw_node_xy):, 1:] = float('-inf')
+        dummy_mask[cnt, len(raw_node_xy)+1:, :] = float('-inf')
         dummy_mask[cnt, :, len(raw_node_xy)+1:] = float('-inf')
 
         duration_matrix[cnt, :len(raw_node_xy)+1, :len(raw_node_xy)+1] = torch.Tensor(data['durations'])

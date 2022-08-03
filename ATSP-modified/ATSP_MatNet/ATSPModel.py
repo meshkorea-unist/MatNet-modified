@@ -62,8 +62,7 @@ class ATSPModel(nn.Module):
         pomo_size = state.BATCH_IDX.size(1)
 
         if state.current_node is None:
-            selected = torch.arange(start=1, end=pomo_size+1)[None, :].expand(batch_size, pomo_size)
-            selected = torch.where(state.dummy_mask[:, :, 1] == float('-inf'), 0, selected)
+            selected = torch.arange(pomo_size)[None, :].expand(batch_size, pomo_size)
             prob = torch.ones(size=(batch_size, pomo_size))
 
             encoded_first_row = _get_encoding(self.encoded_row, selected)
@@ -120,6 +119,7 @@ def _get_encoding(encoded_nodes, node_index_to_pick):
 class ATSP_Encoder(nn.Module):
     def __init__(self, **model_params):
         super().__init__()
+        self.model_params = model_params
         embedding_dim = self.model_params['embedding_dim']
         encoder_layer_num = model_params['encoder_layer_num']
         
@@ -131,9 +131,9 @@ class ATSP_Encoder(nn.Module):
         # depot_node_xy.shape: (batch, node_cnt+1, embedding)
         # cost_mat.shape: (batch, node_cnt+1, node_cnt+1)
 
-        row_emb = self.embedding_node_row(node_xy_demand)
+        row_emb = self.embedding_node_row(depot_node_xy)
         # shape: (batch, node_cnt+1, embedding)
-        col_emb = self.embedding_node_col(node_xy_demand)
+        col_emb = self.embedding_node_col(depot_node_xy)
         # shape: (batch, node_cnt+1, embedding)
         
         for layer in self.layers:

@@ -29,7 +29,7 @@ from dataclasses import dataclass
 import torch
 import copy
 
-from CATSProblemDef import load_predefined_problems, augment_xy_data_by_8_fold
+from ATSProblemDef import load_predefined_problems, augment_xy_data_by_8_fold
 
 
 @dataclass
@@ -170,8 +170,9 @@ class ATSPEnv:
         self.finished = self.finished + newly_finished
         # shape: (batch, pomo)
 
-        # do not mask depot for finished episode.
-        self.ninf_mask[:, :, 0][self.finished] = 0
+        # do not mask for first location if finished
+        indices = torch.diag(torch.ones(self.pomo_size))[None,:,:].type(torch.bool).repeat(self.batch_size, 1, 1) * self.finished[:,:,None].repeat(1,1,self.pomo_size)
+        self.ninf_mask[indices] = 0
 
         self.step_state.current_node = self.current_node
         self.step_state.ninf_mask = self.ninf_mask
@@ -189,12 +190,11 @@ class ATSPEnv:
     def _get_total_duration(self):
 
         node_from = self.selected_node_list
-        # shape: (batch, pomo, node)
+        # shape: (batch, pomo, selected_list_length)
         node_to = self.selected_node_list.roll(dims=2, shifts=-1)
-        # shape: (batch, pomo, node)
-        batch_index = self.BATCH_IDX[:, :, None].expand(self.batch_size, self.pomo_size, self.node_cnt)
-        # shape: (batch, pomo, node)
-
+        # shape: (batch, pomo, selected_list_length)
+        batch_index = self.BATCH_IDX[:, :, None].expand(self.batch_size, self.pomo_size, node_to.shape[2])
+        # shape: (batch, pomo, selected_list_length)
         selected_cost = self.duration_matrix[batch_index, node_from, node_to]
         # shape: (batch, pomo, node)
         total_duration = selected_cost.sum(2)

@@ -198,6 +198,8 @@ class ATSPTrainer:
             state, reward, done = self.env.step(selected)
 
             prob_list = torch.cat((prob_list, prob[:, :, None]), dim=2)
+        print(selected)
+        raise
 
         # Loss
         ###############################################

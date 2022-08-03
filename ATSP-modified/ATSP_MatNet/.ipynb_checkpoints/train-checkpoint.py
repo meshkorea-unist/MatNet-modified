@@ -63,12 +63,12 @@ env_params = {
 }
 
 model_params = {
-    'embedding_dim': 256,
-    'sqrt_embedding_dim': 256**(1/2),
-    'encoder_layer_num': 5,
+    'embedding_dim': 128,
+    'sqrt_embedding_dim': 128**(1/2),
+    'encoder_layer_num': 6,
     'qkv_dim': 16,
     'sqrt_qkv_dim': 16**(1/2),
-    'head_num': 16,
+    'head_num': 8,
     'logit_clipping': 10,
     'ff_hidden_dim': 512,
     'ms_hidden_dim': 16,
@@ -80,7 +80,7 @@ model_params = {
 optimizer_params = {
     'optimizer': {
         'lr': 4*1e-4,
-        'weight_decay': 1e-6
+        'weight_decay': 1e-5
     },
     'scheduler': {
         'milestones': [2001, 2101],  # if further training is needed
@@ -93,7 +93,7 @@ trainer_params = {
     'cuda_device_num': CUDA_DEVICE_NUM,
     'epochs': 2000,
     'train_episodes': 10*1000,
-    'train_batch_size': 200,
+    'train_batch_size': 80,
     'logging': {
         'model_save_interval': 100,
         'img_save_interval': 200,
