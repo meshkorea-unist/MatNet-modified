@@ -24,7 +24,8 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 """
-
+import numpy as np
+np.random.seed(0)
 ##########################################################################################
 # Machine Environment Config
 
@@ -59,7 +60,7 @@ from ATSPTrainer import ATSPTrainer as Trainer
 env_params = {
     'node_cnt': 60,
     'pomo_size': 61, # node_cnt+1
-    'file_path': '/home/ec2-user/workspace/shkang/sample_data_matnet_input/samples',
+    'file_path': '/data/matnet_input_sampling_30_60'
 }
 
 model_params = {
@@ -79,8 +80,8 @@ model_params = {
 
 optimizer_params = {
     'optimizer': {
-        'lr': 4*1e-4,
-        'weight_decay': 1e-5
+        'lr': 4*1e-5,
+        'weight_decay': 1e-6
     },
     'scheduler': {
         'milestones': [2001, 2101],  # if further training is needed
@@ -91,12 +92,12 @@ optimizer_params = {
 trainer_params = {
     'use_cuda': USE_CUDA,
     'cuda_device_num': CUDA_DEVICE_NUM,
-    'epochs': 2000,
+    'epochs': 8000,
     'train_episodes': 10*1000,
-    'train_batch_size': 80,
+    'train_batch_size': 120,
     'logging': {
-        'model_save_interval': 100,
-        'img_save_interval': 200,
+        'model_save_interval': 500,
+        'img_save_interval': 500,
         'log_image_params_1': {
             'json_foldername': 'log_image_style',
             'filename': 'style.json'
@@ -108,8 +109,8 @@ trainer_params = {
     },
     'model_load': {
         'enable': False,  # enable loading pre-trained model
-        # 'path': './result/saved_atsp_model',  # directory path of pre-trained model and log files saved.
-        # 'epoch': 2000,  # epoch version of pre-trained model to laod.
+         'path': './result/20220806_225413_matnet_train_max60',  # directory path of pre-trained model and log files saved.
+         'epoch': 900,  # epoch version of pre-trained model to laod.
     }
 }
 

@@ -28,14 +28,13 @@ THE SOFTWARE.
 import torch
 
 import os
+import pickle
 from logging import getLogger
 
 from ATSPEnv import ATSPEnv as Env
 from ATSPModel import ATSPModel as Model
 
 from utils.utils import get_result_folder, AverageMeter, TimeEstimator
-
-from ATSProblemDef import load_single_problem_from_file
 
 
 class ATSPTester:
@@ -94,7 +93,12 @@ class ATSPTester:
             batch_size = min(self.tester_params['test_batch_size'], remaining)
 
             score, aug_score = self._test_one_batch(batch_size)
-
+            
+            if self.tester_params.get('save_graph'):
+                with open(self.result_folder+'/intermediate_sol_'+str(episode)+'.pkl','wb') as f:
+                    f.write(pickle.dumps({'problem':self.env.depot_node_xy[:batch_size].cpu(), 'selected_node':self.env.selected_node_list.cpu(), 'duration_matrix':self.env.duration_matrix[:batch_size].cpu()}))
+            
+            
             score_AM.update(score, batch_size)
             aug_score_AM.update(aug_score, batch_size)
 

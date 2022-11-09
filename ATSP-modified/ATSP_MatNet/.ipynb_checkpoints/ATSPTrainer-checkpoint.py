@@ -163,12 +163,12 @@ class ATSPTrainer:
             episode += batch_size
 
             # Log First 10 Batch, only at the first epoch
-            if epoch == self.start_epoch:
-                loop_cnt += 1
-                if loop_cnt <= 10:
-                    self.logger.info('Epoch {:3d}: Train {:3d}/{:3d}({:1.1f}%)  Score: {:.4f},  Loss: {:.4f}'
-                                     .format(epoch, episode, train_num_episode, 100. * episode / train_num_episode,
-                                             score_AM.avg, loss_AM.avg))
+            #if epoch == self.start_epoch:
+            #    loop_cnt += 1
+            #    if loop_cnt <= 10:
+            self.logger.info('Epoch {:3d}: Train {:3d}/{:3d}({:1.1f}%)  Score: {:.4f},  Loss: {:.4f}'
+                             .format(epoch, episode, train_num_episode, 100. * episode / train_num_episode,
+                                     score_AM.avg, loss_AM.avg))
 
         # Log Once, for each epoch
         self.logger.info('Epoch {:3d}: Train ({:3.0f}%)  Score: {:.4f},  Loss: {:.4f}'
@@ -198,8 +198,9 @@ class ATSPTrainer:
             state, reward, done = self.env.step(selected)
 
             prob_list = torch.cat((prob_list, prob[:, :, None]), dim=2)
-        print(selected)
-        raise
+        #print(self.env.selected_node_list)
+        #print(self.env.selected_node_list[0])
+        #raise
 
         # Loss
         ###############################################

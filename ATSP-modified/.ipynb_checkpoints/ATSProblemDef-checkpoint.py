@@ -117,4 +117,4 @@ def augment_xy_data_by_8_fold(xy_data):
     aug_xy_data = torch.cat((dat1, dat2, dat3, dat4, dat5, dat6, dat7, dat8), dim=0)
     # shape: (8*batch, N, 2)
 
-    return 
+    return aug_xy_data

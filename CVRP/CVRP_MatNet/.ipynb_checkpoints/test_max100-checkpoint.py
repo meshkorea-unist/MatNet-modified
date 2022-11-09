@@ -32,7 +32,7 @@ from CVRPTester import CVRPTester as Tester
 env_params = {
     'node_cnt': 60,
     'pomo_size': 60,
-    'file_path': '/home/ec2-user/workspace/shkang/sample_data_matnet_input/samples',
+    'file_path': '/data/matnet_input_sampling_30_60',
 }
 
 model_params = {
@@ -55,14 +55,14 @@ tester_params = {
     'use_cuda': USE_CUDA,
     'cuda_device_num': CUDA_DEVICE_NUM,
     'model_load': {
-        'path': '/home/ec2-user/workspace/shkang/MatNet-modified/CVRP/CVRP_MatNet/result/20220801_180838_train_cvrp_max100',  # directory path of pre-trained model and log files saved.
-        'epoch': 1500,  # epoch version of pre-trained model to laod.
+        'path': '/data/CVRP/result/20220808_203958_train_cvrp_max100',  # directory path of pre-trained model and log files saved.
+        'epoch': 2000,  # epoch version of pre-trained model to laod.
     },
     'test_episodes': 10*1000,
-    'test_batch_size': 20,
+    'test_batch_size': 160,
     'augmentation_enable': True,
     'aug_factor': 8,
-    'aug_batch_size': 20,
+    'aug_batch_size': 160,
 }
 if tester_params['augmentation_enable']:
     tester_params['test_batch_size'] = tester_params['aug_batch_size']
@@ -97,7 +97,7 @@ def main():
 
 def _set_debug_mode():
     global tester_params
-    tester_params['test_episodes'] = 3200
+    tester_params['test_episodes'] = 10000
     tester_params['save_graph'] = True
 
 

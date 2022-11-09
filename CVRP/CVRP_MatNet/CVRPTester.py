@@ -68,7 +68,7 @@ class CVRPTester:
             score, aug_score = self._test_one_batch(batch_size)
             if self.tester_params.get('save_graph'):
                 with open(self.result_folder+'/intermediate_sol_'+str(episode)+'.pkl','wb') as f:
-                    f.write(pickle.dumps({'problem':self.env.depot_node_xy[:batch_size], 'selected_node':self.env.selected_node_list, 'duration_matrix':self.env.duration_matrix[:batch_size]}))
+                    f.write(pickle.dumps({'problem':self.env.depot_node_xy[:batch_size].cpu(), 'selected_node':self.env.selected_node_list.cpu(), 'duration_matrix':self.env.duration_matrix[:batch_size].cpu()}))
             
             
             score_AM.update(score, batch_size)

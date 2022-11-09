@@ -1,3 +1,31 @@
+
+"""
+The MIT License
+
+Copyright (c) 2021 MatNet
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+"""
+import numpy as np
+np.random.seed(0)
 ##########################################################################################
 # Machine Environment Config
 
@@ -32,7 +60,7 @@ from CVRPTrainer import CVRPTrainer as Trainer
 env_params = {
     'node_cnt': 60,
     'pomo_size': 60,
-    'file_path': '/home/ec2-user/workspace/shkang/sample_data_matnet_input/samples',
+    'file_path': '/data/matnet_input_sampling_30_60',
 }
 
 model_params = {
@@ -52,8 +80,8 @@ model_params = {
 
 optimizer_params = {
     'optimizer': {
-        'lr': 1e-4,
-        'weight_decay': 1e-5
+        'lr': 4*1e-5,
+        'weight_decay': 1e-6
     },
     'scheduler': {
         'milestones': [2001, 2051],
@@ -66,7 +94,7 @@ trainer_params = {
     'cuda_device_num': CUDA_DEVICE_NUM,
     'epochs': 2000,
     'train_episodes': 10 * 1000,
-    'train_batch_size': 80,
+    'train_batch_size': 50,
     'prev_model_path': None,
     'logging': {
         'model_save_interval': 500,
@@ -82,8 +110,8 @@ trainer_params = {
     },
     'model_load': {
         'enable': False,  # enable loading pre-trained model
-        # 'path': './result/saved_CVRP20_model',  # directory path of pre-trained model and log files saved.
-        # 'epoch': 2000,  # epoch version of pre-trained model to load.
+         'path': '/data/ATSP-modified/result/20220806_225327_train_cvrp_max100',  # directory path of pre-trained model and log files saved.
+         'epoch': 500,  # epoch version of pre-trained model to load.
 
     }
 }

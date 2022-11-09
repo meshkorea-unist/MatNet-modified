@@ -28,8 +28,8 @@ THE SOFTWARE.
 ##########################################################################################
 # Machine Environment Config
 
-DEBUG_MODE = False
-USE_CUDA = not DEBUG_MODE
+DEBUG_MODE = True
+USE_CUDA = True
 CUDA_DEVICE_NUM = 0
 
 
@@ -57,45 +57,38 @@ from ATSPTester import ATSPTester as Tester
 # parameters
 
 env_params = {
-    'node_cnt': 20,
-    'problem_gen_params': {
-        'int_min': 0,
-        'int_max': 1000*1000,
-        'scaler': 1000*1000
-    },
-    'pomo_size': 20  # same as node_cnt
+    'node_cnt': 60,
+    'pomo_size': 61,
+    'file_path': '/data/matnet_input_sampling_30_60',
 }
 
 model_params = {
-    'embedding_dim': 256,
-    'sqrt_embedding_dim': 256**(1/2),
-    'encoder_layer_num': 5,
+    'embedding_dim': 128,
+    'sqrt_embedding_dim': 128**(1/2),
+    'encoder_layer_num': 6,
     'qkv_dim': 16,
     'sqrt_qkv_dim': 16**(1/2),
-    'head_num': 16,
+    'head_num': 8,
     'logit_clipping': 10,
     'ff_hidden_dim': 512,
     'ms_hidden_dim': 16,
     'ms_layer1_init': (1/2)**(1/2),
     'ms_layer2_init': (1/16)**(1/2),
-    'eval_type': 'softmax',
-    'one_hot_seed_cnt': 20,  # must be >= node_cnt
+    'eval_type': 'argmax',
 }
 
 tester_params = {
     'use_cuda': USE_CUDA,
     'cuda_device_num': CUDA_DEVICE_NUM,
     'model_load': {
-        'path': './result/saved_atsp20_model',  # directory path of pre-trained model and log files saved.
-        'epoch': 5000,  # epoch version of pre-trained model to load.
+        'path': '/data/ATSP-modified/result/20220808_234931_matnet_train_max60',  # directory path of pre-trained model and log files saved.
+        'epoch': 1300,  # epoch version of pre-trained model to laod.
     },
-    'saved_problem_folder': "../data/n20",
-    'saved_problem_filename': 'problem_20_0_1000000_{}.atsp',
-    'file_count': 10*1000,
-    'test_batch_size': 1000,
+    'test_episodes': 10*1000,
+    'test_batch_size': 20,
     'augmentation_enable': True,
-    'aug_factor': 128,
-    'aug_batch_size': 100,
+    'aug_factor': 8,
+    'aug_batch_size': 20,
 }
 if tester_params['augmentation_enable']:
     tester_params['test_batch_size'] = tester_params['aug_batch_size']
@@ -130,8 +123,9 @@ def main():
 
 
 def _set_debug_mode():
-    tester_params['aug_factor'] = 10
-    tester_params['file_count'] = 100
+    global tester_params
+    tester_params['test_episodes'] = 200
+    tester_params['save_graph'] = True
 
 
 def _print_config():

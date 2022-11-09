@@ -38,17 +38,20 @@ class InferenceManager:
         self.BATCH_IDX = torch.arange(self.batch_size).repeat(self.augment_size)[:, None].expand(self.augmented_batch_size, self.pomo_size)
         self.POMO_IDX = torch.arange(self.pomo_size)[None, :].expand(self.batch_size, self.pomo_size)
         
-        self._precompute()        
+        self._precompute()
+        
+    #def 
         
     def show_best(self, instance_index):
         aug_index = self.aug_indices[instance_index]
         pomo_index = self.pomo_indices[aug_index, instance_index]
-        tmp = np.array(self.problem[instance_index][self.selected_node_list[aug_index*20 + instance_index]])
+        tmp = np.array(self.problem[instance_index][self.selected_node_list[aug_index*self.batch_size + instance_index]])
+        depot = self.problem[instance_index][0]
         tmp=tmp[pomo_index]
-        result=[i for i in tmp if (i[0]!=tmp[0][0]) or (i[1]!=tmp[0][1])]
-        print(len(result))
-        print(self.max_aug_pomo_reward[instance_index])
-        return result
+        result=[i for i in tmp if (i[0]!=depot[0]) or (i[1]!=depot[1])]
+        if (result[0][0] == result[-1][0]) and (result[0][1] == result[-1][1]):
+            result = [result[0].tolist()] + [i.tolist() for i in result if (i[0]!=result[0][0]) or (i[1]!=result[0][1])]
+        return result, self.max_aug_pomo_reward[instance_index], self.selected_node_list[aug_index*self.batch_size + instance_index][pomo_index][:len(result)+2]
     
     
     def _precompute(self):
